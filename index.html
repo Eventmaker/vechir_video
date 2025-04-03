@@ -15,7 +15,7 @@
                         'bg-dark': '#12141D',
                         'text-light': '#ffffff',
                         'text-secondary': '#cccccc',
-                        'accent-blue': '#00aaff',
+                        'accent-blue': '#00aaff', // This blue will be used for prices
                         'accent-pink': '#ff00ff',
                         'border-color': '#333',
                         'input-bg': '#2a2d35',
@@ -73,14 +73,16 @@
         .tier-card li::marker { color: theme('colors.accent-blue'); }
         .tier-card li { margin-bottom: 0.5rem; }
 
+        /* === MODIFIED Price Style === */
         .tier-card .price {
             font-size: 2rem; /* Larger price */
             font-weight: 700;
-            background: linear-gradient(90deg, theme('colors.accent-blue'), theme('colors.accent-pink'));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: theme('colors.accent-blue'); /* Changed to accent-blue color */
+            /* Removed gradient background and text clipping */
             margin-bottom: 0.5rem;
         }
+        /* === END MODIFIED Price Style === */
+
          .tier-card .price-unit {
             font-size: 0.9rem;
             color: theme('colors.text-secondary');
