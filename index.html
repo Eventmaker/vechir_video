@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вибір Послуги Відеонагляду - Вечір Телеком</title>
+    <title>Розрахунок Послуги Відеонагляду - Вечір Телеком</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Tailwind configuration - reuse from survey
+        // Tailwind configuration
         tailwind.config = {
             theme: {
                 extend: {
@@ -15,13 +15,15 @@
                         'bg-dark': '#12141D',
                         'text-light': '#ffffff',
                         'text-secondary': '#cccccc',
-                        'accent-blue': '#00aaff', // This blue will be used for prices
+                        'accent-blue': '#00aaff', // Blue for prices and highlights
                         'accent-pink': '#ff00ff',
                         'border-color': '#333',
                         'input-bg': '#2a2d35',
                         'input-bg-hover': '#3a3f4a',
-                        'card-bg': '#1e212b', // Slightly different bg for cards
+                        'card-bg': '#1e212b',
                         'tier-standard-border': '#0ea5e9', // Sky 500 for standard highlight
+                        'error-text': '#ffcad4',
+                        'error-border': '#ff4d6d',
                     },
                     fontFamily: {
                         sans: ['Inter', 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
@@ -55,48 +57,77 @@
             border: 1px solid theme('colors.border-color');
             transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
             display: flex;
-            flex-direction: column; /* Ensure button stays at bottom */
-            height: 100%; /* Make cards in a row equal height */
+            flex-direction: column;
+            height: 100%;
         }
         .tier-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 170, 255, 0.1);
         }
-
-        /* Highlight for Standard tier */
         .tier-standard {
              border-color: theme('colors.tier-standard-border');
-             box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); /* Subtle glow */
+             box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
         }
-
-        .tier-card ul { padding-left: 1.5rem; } /* Indent list items */
+        .tier-card ul { padding-left: 1.5rem; }
         .tier-card li::marker { color: theme('colors.accent-blue'); }
         .tier-card li { margin-bottom: 0.5rem; }
 
-        /* === MODIFIED Price Style === */
+        /* Price Style */
         .tier-card .price {
-            font-size: 2rem; /* Larger price */
+            font-size: 2rem;
             font-weight: 700;
-            color: theme('colors.accent-blue'); /* Changed to accent-blue color */
-            /* Removed gradient background and text clipping */
-            margin-bottom: 0.5rem;
+            color: theme('colors.accent-blue');
+            margin-bottom: 0.1rem; /* Reduced margin */
         }
-        /* === END MODIFIED Price Style === */
-
          .tier-card .price-unit {
             font-size: 0.9rem;
             color: theme('colors.text-secondary');
          }
-         .tier-card .purchase-price {
-             font-size: 0.9rem;
+         /* Style for the camera count note below the price */
+         .tier-card .camera-count-note {
+             font-size: 0.8rem;
              color: theme('colors.text-secondary');
-             margin-top: 0.25rem;
+             margin-top: -0.25rem; /* Pull slightly closer to price */
+             min-height: 1.2rem; /* Reserve space even when empty */
          }
 
         /* Footer styling */
          footer {
              background-color: theme('colors.bg-dark');
          }
+
+         /* Input focus styles */
+        input[type="number"]:focus {
+             outline: none;
+             border-color: theme('colors.accent-blue');
+             box-shadow: 0 0 5px theme('colors.accent-blue');
+        }
+
+        /* Animation for tier appearance */
+        #pricing-tiers { animation: fadeIn 0.5s; }
+         @keyframes fadeIn {
+             from { opacity: 0; transform: translateY(10px); }
+             to { opacity: 1; transform: translateY(0); }
+         }
+
+         /* Error state for input */
+        input.border-error {
+            border-color: theme('colors.error-border');
+        }
+        .error-message {
+            color: theme('colors.error-text');
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.5rem; /* mt-2 */
+        }
+
+        /* Table styling */
+        .price-table th {
+            background-color: theme('colors.input-bg');
+        }
+        .price-table tr:hover {
+             background-color: theme('colors.input-bg-hover');
+        }
+
 
     </style>
 </head>
@@ -118,26 +149,43 @@
     <main class="container max-w-7xl mx-auto p-4 sm:p-6">
 
         <h1 class="text-3xl sm:text-4xl font-bold text-center mb-4 text-accent-blue flex items-center justify-center gap-3">
-            <i class="fa-solid fa-shield-halved"></i> Пакети Послуг Відеонагляду
+            <i class="fa-solid fa-calculator"></i> Розрахунок Послуг Відеонагляду
         </h1>
         <p class="text-center text-text-secondary mb-10 max-w-2xl mx-auto">
-            Оберіть оптимальний пакет для вашого дому чи бізнесу. Ми пропонуємо гнучкі рішення з щомісячною оплатою або можливістю придбання обладнання.
+            Вкажіть бажану кількість камер, щоб побачити індивідуально розраховані тарифи для вашого дому чи бізнесу.
         </p>
 
-        <section id="package-1" class="mb-16">
-            <h2 class="text-2xl font-semibold text-center mb-8 border-b border-border-color pb-3 flex items-center justify-center gap-2">
-                 <i class="fa-solid fa-camera text-accent-pink"></i> Безпечний дім (1 камера)
+        <section id="camera-input-section" class="mb-10 max-w-md mx-auto bg-card-bg p-6 rounded-lg shadow-lg border border-border-color">
+            <div class="form-group">
+                <label for="camera-count-input" class="block mb-2 text-lg font-medium text-text-light text-center">
+                    <i class="fa-solid fa-video mr-2"></i> Введіть бажану кількість камер:
+                </label>
+                <input type="number" id="camera-count-input" name="camera_count" min="1" required
+                       class="w-full p-3 text-center text-xl bg-input-bg border border-border-color text-text-light rounded-md focus:border-accent-blue focus:ring-accent-blue focus:ring-1 transition"
+                       placeholder="Напр., 2">
+                 <p id="input-error-message" class="error-message text-center hidden"></p> </div>
+            <div class="text-center mt-6">
+                <button type="button" id="calculate-prices-btn"
+                        class="btn bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2.5 px-8 rounded-md uppercase transition-colors duration-300 shadow-md hover:shadow-lg w-full sm:w-auto">
+                    Розрахувати тарифи
+                </button>
+            </div>
+        </section>
+
+        <section id="pricing-tiers" class="hidden mt-12">
+             <h2 class="text-2xl font-semibold text-center mb-8 border-b border-border-color pb-3">
+                Доступні тарифи для <span id="displayed-camera-count"></span> камер(и)
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="tier-card rounded-lg p-6 shadow-lg">
                     <h3 class="text-xl font-semibold mb-4 text-center">Економ</h3>
                     <div class="text-center mb-5">
-                        <span class="price">259</span> <span class="price-unit">грн/міс</span>
-                        <p class="purchase-price">або від 3500 грн разово <br>(монтаж + покупка)</p>
+                        <span class="price" data-tier="economy">-</span> <span class="price-unit">грн/міс</span>
+                        <p class="camera-count-note" data-tier-note="economy"></p>
                     </div>
                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>1x Базова IP-камера (внутрішня/зовнішня)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камери</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Базова IP-камера</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камер</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Запис по руху (на карту пам'яті)*</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Сповіщення про рух</li>
@@ -151,69 +199,11 @@
                      <span class="block text-center text-xs font-semibold uppercase text-tier-standard-border -mt-3 mb-3">Популярний</span>
                     <h3 class="text-xl font-semibold mb-4 text-center">Стандарт</h3>
                     <div class="text-center mb-5">
-                        <span class="price">459</span> <span class="price-unit">грн/міс</span>
-                        <p class="purchase-price">або від 4500 грн разово <br>(монтаж + покупка)</p>
+                        <span class="price" data-tier="standard">-</span> <span class="price-unit">грн/міс</span>
+                         <p class="camera-count-note" data-tier-note="standard"></p>
                     </div>
                      <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>1x Покращена IP-камера (Full HD, нічне бачення)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камери</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Розширені сповіщення про рух</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Пріоритетна технічна підтримка</li>
-                    </ul>
-                    <button class="btn w-full mt-auto bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                </div>
-
-                <div class="tier-card rounded-lg p-6 shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-center">Преміум</h3>
-                     <div class="text-center mb-5">
-                        <span class="price">659</span> <span class="price-unit">грн/міс</span>
-                        <p class="purchase-price">або від 5500 грн разово <br>(монтаж + покупка)</p>
-                    </div>
-                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>1x Преміум IP-камера (4Мп+, AI-функції)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камери</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
-                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Інтелектуальні сповіщення (людина/авто)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>VIP технічна підтримка</li>
-                     </ul>
-                    <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                </div>
-            </div>
-        </section>
-
-         <section id="package-2" class="mb-16">
-            <h2 class="text-2xl font-semibold text-center mb-8 border-b border-border-color pb-3 flex items-center justify-center gap-2">
-                 <i class="fa-solid fa-video text-accent-pink"></i> Сімейний контроль (2 камери)
-            </h2>
-             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 <div class="tier-card rounded-lg p-6 shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-center">Економ</h3>
-                    <div class="text-center mb-5">
-                        <span class="price">479</span> <span class="price-unit">грн/міс</span>
-                        <p class="purchase-price">або від 6000 грн разово <br>(монтаж + покупка)</p>
-                    </div>
-                    <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>2x Базові IP-камери (внутрішні/зовнішні)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камер</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Запис по руху (на карту пам'яті)*</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Сповіщення про рух</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Базова технічна підтримка</li>
-                    </ul>
-                    <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                    <p class="text-xs text-text-secondary/70 mt-3 text-center">* Карти пам'яті купуються окремо.</p>
-                </div>
-
-                <div class="tier-card tier-standard rounded-lg p-6 shadow-lg border-2">
-                     <span class="block text-center text-xs font-semibold uppercase text-tier-standard-border -mt-3 mb-3">Популярний</span>
-                    <h3 class="text-xl font-semibold mb-4 text-center">Стандарт</h3>
-                    <div class="text-center mb-5">
-                        <span class="price">679</span> <span class="price-unit">грн/міс</span>
-                         <p class="purchase-price">або від 8000 грн разово <br>(монтаж + покупка)</p>
-                    </div>
-                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>2x Покращені IP-камери (Full HD, нічне бачення)</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Покращена IP-камера (Full HD, нічне бачення)</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камер</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Розширені сповіщення про рух</li>
@@ -225,72 +215,14 @@
                 <div class="tier-card rounded-lg p-6 shadow-lg">
                     <h3 class="text-xl font-semibold mb-4 text-center">Преміум</h3>
                      <div class="text-center mb-5">
-                        <span class="price">879</span> <span class="price-unit">грн/міс</span>
-                        <p class="purchase-price">або від 10000 грн разово <br>(монтаж + покупка)</p>
+                        <span class="price" data-tier="premium">-</span> <span class="price-unit">грн/міс</span>
+                         <p class="camera-count-note" data-tier-note="premium"></p>
                     </div>
                      <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>2x Преміум IP-камери (4Мп+, AI-функції)</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Преміум IP-камера (4Мп+, AI-функції)</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камер</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Інтелектуальні сповіщення (людина/авто)</li>
-                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>VIP технічна підтримка</li>
-                     </ul>
-                    <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="package-3" class="mb-16">
-            <h2 class="text-2xl font-semibold text-center mb-8 border-b border-border-color pb-3 flex items-center justify-center gap-2">
-                 <i class="fa-solid fa-binoculars text-accent-pink"></i> Захищений простір (3 камери)
-            </h2>
-             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div class="tier-card rounded-lg p-6 shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-center">Економ</h3>
-                    <div class="text-center mb-5">
-                        <span class="price">699</span> <span class="price-unit">грн/міс</span>
-                         <p class="purchase-price">або від 8500 грн разово <br>(монтаж + покупка)</p>
-                    </div>
-                    <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>3x Базові IP-камери (внутрішні/зовнішні)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камер (в т.ч. на висоті до 3м)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Запис по руху (на карту пам'яті)*</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Сповіщення про рух</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Базова технічна підтримка</li>
-                    </ul>
-                    <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                    <p class="text-xs text-text-secondary/70 mt-3 text-center">* Карти пам'яті купуються окремо.</p>
-                </div>
-
-                <div class="tier-card tier-standard rounded-lg p-6 shadow-lg border-2">
-                     <span class="block text-center text-xs font-semibold uppercase text-tier-standard-border -mt-3 mb-3">Популярний</span>
-                    <h3 class="text-xl font-semibold mb-4 text-center">Стандарт</h3>
-                    <div class="text-center mb-5">
-                        <span class="price">999</span> <span class="price-unit">грн/міс</span>
-                        <p class="purchase-price">або від 11500 грн разово <br>(монтаж + покупка)</p>
-                    </div>
-                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>3x Покращені IP-камери (Full HD, нічне бачення)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камер (в т.ч. на висоті до 3м)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Розширені сповіщення про рух</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Пріоритетна технічна підтримка</li>
-                    </ul>
-                    <button class="btn w-full mt-auto bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                </div>
-
-                <div class="tier-card rounded-lg p-6 shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-center">Преміум</h3>
-                     <div class="text-center mb-5">
-                        <span class="price">1299</span> <span class="price-unit">грн/міс</span>
-                         <p class="purchase-price">або від 14000 грн разово <br>(монтаж + покупка)</p>
-                    </div>
-                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>3x Преміум IP-камери (4Мп+, AI-функції)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж та налаштування камер (в т.ч. на висоті до 3м)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування додатку для перегляду</li>
-                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Інтелектуальні сповіщення (людина/авто)</li>
                         <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>VIP технічна підтримка</li>
                      </ul>
                     <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
@@ -300,41 +232,231 @@
 
         <section id="custom-installation" class="mt-16 pt-10 border-t border-border-color text-center">
             <h2 class="text-2xl font-semibold text-center mb-4 flex items-center justify-center gap-2">
-                 <i class="fa-solid fa-screwdriver-wrench text-accent-pink"></i> Індивідуальні Рішення
+                 <i class="fa-solid fa-screwdriver-wrench text-accent-pink"></i> Індивідуальні Рішення та Монтажні Роботи
             </h2>
-            <p class="text-text-secondary mb-6 max-w-xl mx-auto">
-                Потрібна специфічна конфігурація, більше камер або додаткові послуги, такі як налаштування відеореєстратора чи розпізнавання номерів?
+            <p class="text-text-secondary mb-8 max-w-2xl mx-auto">
+                Потрібна специфічна конфігурація або окремі монтажні роботи? Ознайомтесь з орієнтовними цінами на послуги або зв'яжіться з нами для точного розрахунку.
             </p>
-            <a href="#installation-pricelist" class="btn bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 mr-3">Прайс на монтаж</a>
-             <a href="tel:0800303660" class="btn bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300">Зв'язатися з нами</a>
-            <div id="installation-pricelist" class="mt-8 text-left max-w-md mx-auto text-sm text-text-secondary hidden">
-                <h4 class="font-semibold mb-2 text-center">Орієнтовний прайс на окремі роботи:</h4>
-                <ul>
-                    <li>Монтаж внутрішньої камери: від 350 грн</li>
-                    <li>Монтаж вуличної камери: від 450 грн</li>
-                    <li>Монтаж на висоті: від 650 грн</li>
-                     <li>Налаштування відеореєстратора: від 800 грн</li>
-                    <li>...та інші послуги.</li>
-                 </ul>
-                 <p class="mt-2 text-center">Зв'яжіться для точного розрахунку.</p>
-             </div>
-         </section>
 
-    </main>
+            <div class="max-w-3xl mx-auto overflow-x-auto relative shadow-md rounded-lg mb-8">
+                <table class="w-full text-sm text-left text-text-secondary price-table">
+                    <thead class="text-xs text-text-light uppercase">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">
+                                Послуга
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right">
+                                Орієнтовна ціна
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-card-bg divide-y divide-border-color">
+                        <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Монтаж внутрішньої відеокамери
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                599 грн / шт.
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Монтаж вуличної відеокамери
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                799 грн / шт.
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Встановлення вуличної відеокамери на висоті
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                899 грн / шт.
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Прокладання кабелю (за метр)
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                15 грн / метр
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Встановлення та налаштування відеореєстратора
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                500 грн / шт.
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Встановлення та налаштування сервера відеоспостереження на ПК
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                1200 грн / шт.
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Встановлення блоку живлення (спец.) відеоспостереження у приміщенні
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                250 грн / шт.
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Встановлення блоку живлення (спец.) відеоспостереження на вулиці
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                350 грн / шт.
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Налаштування доступу до камер з телефону або ПК
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                150 грн / шт.
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Налаштування доступу до відеореєстратора з телефону або ПК
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                200 грн / шт.
+                            </td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
+                                Виїзд спеціаліста для ТО
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-text-light">
+                                300 грн
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a href="tel:0800303660" class="btn bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300">Зв'язатися з нами</a>
+         </section>
+         </main>
 
     <footer class="text-center mt-12 py-4 text-sm text-text-secondary border-t border-border-color">
         © Вечір Телеком, 2025. Всі права захищено.
     </footer>
 
 <script>
-    // Optional: Simple script to toggle visibility of the price list example
-    document.querySelector('a[href="#installation-pricelist"]').addEventListener('click', function(e) {
-        e.preventDefault();
-        const priceListDiv = document.getElementById('installation-pricelist');
-        priceListDiv.classList.toggle('hidden');
-        if (!priceListDiv.classList.contains('hidden')) {
-            priceListDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- DOM Elements ---
+        const cameraInput = document.getElementById('camera-count-input');
+        const calculateBtn = document.getElementById('calculate-prices-btn');
+        const pricingSection = document.getElementById('pricing-tiers');
+        const displayedCountSpan = document.getElementById('displayed-camera-count');
+        const inputErrorMsg = document.getElementById('input-error-message');
+
+        // Price spans and notes
+        const priceSpans = {
+            economy: pricingSection.querySelector('.price[data-tier="economy"]'),
+            standard: pricingSection.querySelector('.price[data-tier="standard"]'),
+            premium: pricingSection.querySelector('.price[data-tier="premium"]')
+        };
+        const noteSpans = {
+            economy: pricingSection.querySelector('.camera-count-note[data-tier-note="economy"]'),
+            standard: pricingSection.querySelector('.camera-count-note[data-tier-note="standard"]'),
+            premium: pricingSection.querySelector('.camera-count-note[data-tier-note="premium"]')
+        };
+
+
+        // --- Constants ---
+        const BASE_PRICE = 199;
+        const TIER_NOMINALS = {
+            economy: 150,
+            standard: 300,
+            premium: 450
+        };
+
+        // --- Functions ---
+
+        /**
+         * Calculates the price based on the formula.
+         * @param {number} cameraCount - Number of cameras.
+         * @param {number} nominal - Tier nominal value.
+         * @returns {number} - Calculated monthly price.
+         */
+        function calculatePrice(cameraCount, nominal) {
+            return BASE_PRICE + (nominal * cameraCount);
         }
+
+        /**
+         * Shows an error message for the input.
+         * @param {string} message - The error message.
+         */
+        function showInputError(message) {
+            cameraInput.classList.add('border-error');
+            inputErrorMsg.textContent = message;
+            inputErrorMsg.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the input error message.
+         */
+        function hideInputError() {
+            cameraInput.classList.remove('border-error');
+            inputErrorMsg.classList.add('hidden');
+            inputErrorMsg.textContent = '';
+        }
+
+        // --- Event Listener ---
+        calculateBtn.addEventListener('click', () => {
+            hideInputError(); // Clear previous errors
+            const cameraCount = parseInt(cameraInput.value, 10);
+
+            // Validate input
+            if (isNaN(cameraCount) || cameraCount < 1) {
+                showInputError('Будь ласка, введіть дійсну кількість камер (мінімум 1).');
+                pricingSection.classList.add('hidden'); // Hide tiers if input is invalid
+                return;
+            }
+
+            // Calculate prices
+            const prices = {
+                economy: calculatePrice(cameraCount, TIER_NOMINALS.economy),
+                standard: calculatePrice(cameraCount, TIER_NOMINALS.standard),
+                premium: calculatePrice(cameraCount, TIER_NOMINALS.premium)
+            };
+
+            // Update displayed prices and notes
+            for (const tier in prices) {
+                if (priceSpans[tier]) {
+                    priceSpans[tier].textContent = prices[tier];
+                }
+                 if (noteSpans[tier]) {
+                    // Add note about camera count, handle pluralization simply
+                    noteSpans[tier].textContent = `* Ціна за ${cameraCount} ${cameraCount === 1 ? 'камеру' : (cameraCount > 1 && cameraCount < 5 ? 'камери' : 'камер')}`;
+                }
+            }
+
+
+            // Update the title span
+            if (displayedCountSpan) {
+                 displayedCountSpan.textContent = cameraCount;
+            }
+
+            // Show the pricing section
+            pricingSection.classList.remove('hidden');
+
+            // Scroll to the results
+            pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        // Optional: Clear error when user types in the input
+        cameraInput.addEventListener('input', hideInputError);
+
     });
 </script>
 
