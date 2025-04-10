@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Розрахунок Щомісячної Вартості Відеонагляду - Вечір Телеком</title>
+    <title>Розрахунок Вартості Відеонагляду - Вечір Телеком</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,6 +25,7 @@
                         'error-text': '#ffcad4',
                         'error-border': '#ff4d6d',
                         'table-highlight-bg': 'rgba(14, 165, 233, 0.05)', // Subtle background for standard column
+                        'calc-result-bg': 'rgba(0, 0, 0, 0.3)', // Background for calculator result
                     },
                     fontFamily: {
                         sans: ['Inter', 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
@@ -98,21 +99,48 @@
          }
 
          /* Input focus styles */
-        input[type="number"]:focus {
+        input[type="number"]:focus, input[type="text"]:focus, textarea:focus {
              outline: none;
              border-color: theme('colors.accent-blue');
              box-shadow: 0 0 5px theme('colors.accent-blue');
         }
+        /* Custom radio/checkbox styling */
+        input[type="radio"], input[type="checkbox"] {
+            accent-color: theme('colors.accent-pink');
+            transform: scale(1.1);
+            cursor: pointer;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+        }
+        /* Unified label style */
+        .radio-label, .checkbox-label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem; /* Standardized padding (p-3) */
+            background-color: theme('colors.input-bg');
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            border: 1px solid theme('colors.border-color');
+        }
+         .radio-label:hover, .checkbox-label:hover {
+            background-color: theme('colors.input-bg-hover');
+            border-color: theme('colors.accent-blue/50');
+        }
+        /* Use sibling selector for better checked state text styling */
+        input[type="radio"]:checked ~ span, input[type="checkbox"]:checked ~ span {
+             color: theme('colors.text-light');
+        }
 
-        /* Animation for tier appearance */
-        #pricing-tiers { animation: fadeIn 0.5s; }
+        /* Animation for tier/calculator appearance */
+        #pricing-tiers, #upfront-calculator-result { animation: fadeIn 0.5s; }
          @keyframes fadeIn {
              from { opacity: 0; transform: translateY(10px); }
              to { opacity: 1; transform: translateY(0); }
          }
 
          /* Error state for input */
-        input.border-error {
+        input.border-error, select.border-error {
             border-color: theme('colors.error-border');
         }
         .error-message {
@@ -125,14 +153,43 @@
         .comparison-table th, .price-table th {
             background-color: theme('colors.input-bg');
         }
-        .comparison-table tr:hover td:not(.standard-col-highlight), /* Don't change highlight bg on hover */
+        .comparison-table tr:hover td:not(.standard-col-highlight),
         .price-table tr:hover {
              background-color: theme('colors.input-bg-hover');
         }
-        /* Highlight for standard column in comparison table */
         .standard-col-highlight {
              background-color: theme('colors.table-highlight-bg');
         }
+
+        /* Calculator specific styles */
+        #upfront-calculator label.input-label { /* Target main labels */
+            margin-bottom: 0.75rem; /* Increased space below label */
+            display: block;
+            font-weight: 500; /* medium */
+             color: theme('colors.text-secondary');
+        }
+         /* Standardize upfront calculator number inputs */
+         #upfront-calculator input[type="number"] {
+             width: 100%;
+             padding: 0.75rem; /* p-3 */
+             text-align: center; /* Added */
+             font-size: 1.25rem; /* text-xl Added */
+             background-color: theme('colors.input-bg');
+             border: 1px solid theme('colors.border-color');
+             color: theme('colors.text-light');
+             border-radius: 0.375rem; /* rounded-md */
+             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+         }
+          #upfront-calculator .radio-group label.radio-label span, /* Target span inside radio label */
+          #upfront-calculator .checkbox-group label.checkbox-label span { /* Target span inside checkbox label */
+             font-weight: 400; /* normal */
+              color: theme('colors.text-secondary'); /* Use secondary text for options */
+         }
+         /* Color fix for checked state text */
+         #upfront-calculator input[type="radio"]:checked ~ span,
+         #upfront-calculator input[type="checkbox"]:checked ~ span {
+             color: theme('colors.text-light'); /* Brighter text when checked */
+         }
 
 
     </style>
@@ -158,11 +215,88 @@
             <i class="fa-solid fa-calculator"></i> Розрахунок щомісячної вартості Відеонагляду
         </h1>
         <p class="text-center text-text-secondary mb-10 max-w-2xl mx-auto">
-            Спочатку порівняйте основні переваги наших тарифів, а потім вкажіть бажану кількість камер для розрахунку індивідуальної вартості.
+            Спочатку вкажіть бажану кількість камер для розрахунку індивідуальної вартості щомісячної послуги. Нижче ви знайдете порівняння тарифів та калькулятор вартості купівлі обладнання.
         </p>
 
-        <section id="tier-comparison-table" class="mb-12">
-            <h2 class="text-2xl font-semibold text-center mb-6">Порівняння Тарифів</h2>
+        <section id="camera-input-section" class="mb-10 max-w-md mx-auto bg-card-bg p-6 rounded-lg shadow-lg border border-border-color">
+            <h3 class="text-xl font-semibold text-center mb-4 text-accent-blue">Розрахунок щомісячної послуги</h3>
+            <div class="form-group">
+                <label for="camera-count-input" class="block mb-2 text-lg font-medium text-text-light text-center">
+                    <i class="fa-solid fa-video mr-2"></i> Введіть бажану кількість камер:
+                </label>
+                <input type="number" id="camera-count-input" name="camera_count" min="1" required
+                       class="w-full p-3 text-center text-xl bg-input-bg border border-border-color text-text-light rounded-md focus:border-accent-blue focus:ring-accent-blue focus:ring-1 transition"
+                       placeholder="Напр., 2">
+                 <p id="input-error-message" class="error-message text-center hidden"></p> </div>
+            <div class="text-center mt-6">
+                <button type="button" id="calculate-prices-btn"
+                        class="btn bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2.5 px-8 rounded-md uppercase transition-colors duration-300 shadow-md hover:shadow-lg w-full sm:w-auto">
+                    Розрахувати тарифи послуги
+                </button>
+            </div>
+        </section>
+        <section id="pricing-tiers" class="hidden mt-12 mb-16">
+             <h2 class="text-2xl font-semibold text-center mb-8 border-b border-border-color pb-3">
+                Щомісячні тарифи для <span id="displayed-camera-count"></span> камер(и)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="tier-card rounded-lg p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Доступний</h3>
+                    <div class="text-center mb-5">
+                        <span class="price" data-tier="economy">-</span> <span class="price-unit">грн/міс</span>
+                        <p class="camera-count-note" data-tier-note="economy"></p>
+                    </div>
+                    <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Базова IP-камера 2Мп</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж камер (внутрішніх/зовнішніх) та налаштування додатку</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування запису на карту пам'яті при русі*</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування базових сповіщень при русі</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Базова технічна підтримка</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Технічний огляд системи (кожні 6 місяці)</li>
+                    </ul>
+                    <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
+                     <p class="text-xs text-text-secondary/70 mt-3 text-center">* Карта пам'яті 128 Гб входить в пакет.</p>
+                </div>
+
+                <div class="tier-card tier-standard rounded-lg p-6 shadow-lg border-2">
+                     <span class="block text-center text-xs font-semibold uppercase text-tier-standard-border -mt-3 mb-3">Популярний</span>
+                    <h3 class="text-xl font-semibold mb-4 text-center">Оптимальний</h3>
+                    <div class="text-center mb-5">
+                        <span class="price" data-tier="standard">-</span> <span class="price-unit">грн/міс</span>
+                         <p class="camera-count-note" data-tier-note="standard"></p>
+                    </div>
+                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Покращена IP-камера 3-4Мп (Full HD, нічне бачення)</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж камер (внутрішніх/зовнішніх) та налаштування додатку</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування запису на карту пам'яті при русі*</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування розширених сповіщень при русі</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Пріоритетна технічна підтримка</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Технічний огляд системи (кожні 4 місяці)</li>
+                    </ul>
+                    <button class="btn w-full mt-auto bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
+                     <p class="text-xs text-text-secondary/70 mt-3 text-center">* Карта пам'яті 128 Гб входить в пакет.</p>
+                </div>
+
+                <div class="tier-card rounded-lg p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Комфортний</h3>
+                     <div class="text-center mb-5">
+                        <span class="price" data-tier="premium">-</span> <span class="price-unit">грн/міс</span>
+                         <p class="camera-count-note" data-tier-note="premium"></p>
+                    </div>
+                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Преміум IP-камера 5Мп+, AI-функції</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж камер (внутрішніх/зовнішніх) та налаштування додатку</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування запису на карту пам'яті при русі*</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування інтелектуальних сповіщень (людина/авто)</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>VIP технічна підтримка</li>
+                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Технічний огляд системи (кожні 3 місяці)</li>
+                     </ul>
+                    <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
+                     <p class="text-xs text-text-secondary/70 mt-3 text-center">* Карта пам'яті 256 Гб входить в пакет.</p>
+                </div>
+            </div>
+        </section>
+         <section id="tier-comparison-table" class="mb-12 pt-10 border-t border-border-color"> <h2 class="text-2xl font-semibold text-center mb-6">Порівняння Тарифів Щомісячної Послуги</h2>
             <div class="max-w-4xl mx-auto overflow-x-auto relative shadow-md rounded-lg border border-border-color">
                 <table class="w-full text-sm text-left text-text-secondary comparison-table">
                     <thead class="text-xs text-text-light uppercase">
@@ -242,91 +376,100 @@
             </div>
         </section>
 
-        <section id="camera-input-section" class="mb-10 max-w-md mx-auto bg-card-bg p-6 rounded-lg shadow-lg border border-border-color">
-            <div class="form-group">
-                <label for="camera-count-input" class="block mb-2 text-lg font-medium text-text-light text-center">
-                    <i class="fa-solid fa-video mr-2"></i> Введіть бажану кількість камер:
-                </label>
-                <input type="number" id="camera-count-input" name="camera_count" min="1" required
-                       class="w-full p-3 text-center text-xl bg-input-bg border border-border-color text-text-light rounded-md focus:border-accent-blue focus:ring-accent-blue focus:ring-1 transition"
-                       placeholder="Напр., 2">
-                 <p id="input-error-message" class="error-message text-center hidden"></p> </div>
-            <div class="text-center mt-6">
-                <button type="button" id="calculate-prices-btn"
-                        class="btn bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2.5 px-8 rounded-md uppercase transition-colors duration-300 shadow-md hover:shadow-lg w-full sm:w-auto">
-                    Розрахувати тарифи
-                </button>
-            </div>
+        <section id="upfront-calculator" class="mt-16 pt-10 border-t border-border-color">
+             <h2 class="text-2xl font-semibold text-center mb-8">Калькулятор вартості купівлі та монтажу</h2>
+             <form id="upfront-calc-form" class="max-w-2xl mx-auto bg-card-bg p-6 md:p-8 rounded-lg shadow-lg border border-border-color space-y-6">
+                 <div>
+                     <label class="input-label text-lg">1. Оберіть тип камери:</label>
+                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 radio-group">
+                         <label class="radio-label justify-center">
+                             <input type="radio" name="calc_camera_type" value="economy" required>
+                             <span>Доступна</span>
+                         </label>
+                         <label class="radio-label justify-center standard-col-highlight">
+                             <input type="radio" name="calc_camera_type" value="standard" checked>
+                             <span>Оптимальна</span>
+                         </label>
+                         <label class="radio-label justify-center">
+                             <input type="radio" name="calc_camera_type" value="premium">
+                             <span>Комфортна</span>
+                         </label>
+                     </div>
+                 </div>
+
+                 <div>
+                    <label for="calc_camera_count" class="input-label text-lg">2. Кількість камер:</label>
+                    <input type="number" id="calc_camera_count" name="calc_camera_count" min="1" required
+                           class="w-full p-3 text-center text-xl bg-input-bg border border-border-color text-text-light rounded-md focus:border-accent-blue focus:ring-accent-blue focus:ring-1 transition"
+                           placeholder="Напр., 3">
+                 </div>
+
+                 <div>
+                    <label for="calc_cable_length" class="input-label text-lg">3. Орієнтовний метраж кабелю (метри):</label>
+                    <input type="number" id="calc_cable_length" name="calc_cable_length" min="0" value="0" required
+                           class="w-full p-3 text-center text-xl bg-input-bg border border-border-color text-text-light rounded-md focus:border-accent-blue focus:ring-accent-blue focus:ring-1 transition"
+                           placeholder="Напр., 20">
+                 </div>
+
+                 <div>
+                     <label class="input-label text-lg">4. Спосіб запису:</label>
+                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 radio-group">
+                         <label class="radio-label justify-center">
+                             <input type="radio" name="calc_recording" value="sd" required checked>
+                             <span>Карта пам'яті</span>
+                         </label>
+                         <label class="radio-label justify-center">
+                             <input type="radio" name="calc_recording" value="nvr">
+                             <span>Відеореєстратор</span>
+                         </label>
+                     </div>
+                 </div>
+
+                 <div>
+                     <label class="input-label text-lg">5. Додаткові налаштування (опціонально):</label>
+                     <div class="space-y-3 checkbox-group">
+                         <label class="checkbox-label">
+                             <input type="checkbox" name="calc_optional_services[]" value="remote_cam_setup">
+                             <span>Налаштування доступу до камер з телефону/ПК</span>
+                         </label>
+                         <label class="checkbox-label">
+                             <input type="checkbox" id="calc_nvr_setup_cb" name="calc_optional_services[]" value="remote_nvr_setup" disabled>
+                             <span>Налаштування доступу до відеореєстратора з телефону/ПК</span>
+                         </label>
+                         <p class="text-xs text-text-secondary/70 mt-1 ml-8">(Доступно при виборі відеореєстратора)</p>
+                     </div>
+                 </div>
+
+                 <div class="text-center pt-4">
+                     <button type="button" id="calculate-upfront-btn"
+                             class="btn bg-accent-pink hover:bg-pink-700 text-text-light font-bold py-2.5 px-8 rounded-md uppercase transition-colors duration-300 shadow-md hover:shadow-lg w-full sm:w-auto">
+                         Розрахувати вартість купівлі
+                     </button>
+                 </div>
+
+                  <p id="upfront-error-message" class="error-message text-center hidden"></p>
+
+                 <div id="upfront-calculator-result" class="hidden mt-8 pt-6 border-t border-border-color text-center bg-calc-result-bg p-6 rounded-lg">
+                     <p class="text-lg text-text-secondary mb-2">Орієнтовна вартість купівлі обладнання та монтажу:</p>
+                     <p class="text-4xl font-bold text-accent-blue mb-4">
+                         <span id="upfront-total-cost">0</span> грн
+                     </p>
+                     <p class="text-text-secondary text-sm">
+                         (Включає вартість обладнання, монтаж, кабель та виїзд спеціаліста)
+                     </p>
+                     <p class="text-text-secondary text-sm mt-4">
+                         Як альтернативу, розгляньте наші <a href="#camera-input-section" onclick="document.getElementById('camera-input-section').scrollIntoView({behavior:'smooth'}); return false;" class="text-accent-blue hover:underline font-medium">щомісячні тарифи</a>,
+                         які включають обладнання, монтаж та обслуговування з можливістю викупу зі знижкою через 12 місяців.
+                     </p>
+                 </div>
+             </form>
         </section>
-
-        <section id="pricing-tiers" class="hidden mt-12">
-             <h2 class="text-2xl font-semibold text-center mb-8 border-b border-border-color pb-3">
-                Розраховані тарифи для <span id="displayed-camera-count"></span> камер(и)
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="tier-card rounded-lg p-6 shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-center">Доступний</h3>
-                    <div class="text-center mb-5">
-                        <span class="price" data-tier="economy">-</span> <span class="price-unit">грн/міс</span>
-                        <p class="camera-count-note" data-tier-note="economy"></p>
-                    </div>
-                    <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Базова IP-камера 2Мп</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж камер (внутрішніх/зовнішніх) та налаштування додатку</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування запису на карту пам'яті при русі*</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування базових сповіщень при русі</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Базова технічна підтримка</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Технічний огляд системи (кожні 6 місяці)</li>
-                    </ul>
-                    <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                     <p class="text-xs text-text-secondary/70 mt-3 text-center">* Карта пам'яті 128 Гб входить в пакет.</p>
-                </div>
-
-                <div class="tier-card tier-standard rounded-lg p-6 shadow-lg border-2">
-                     <span class="block text-center text-xs font-semibold uppercase text-tier-standard-border -mt-3 mb-3">Популярний</span>
-                    <h3 class="text-xl font-semibold mb-4 text-center">Оптимальний</h3>
-                    <div class="text-center mb-5">
-                        <span class="price" data-tier="standard">-</span> <span class="price-unit">грн/міс</span>
-                         <p class="camera-count-note" data-tier-note="standard"></p>
-                    </div>
-                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Покращена IP-камера 3-4Мп (Full HD, нічне бачення)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж камер (внутрішніх/зовнішніх) та налаштування додатку</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування запису на карту пам'яті при русі*</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування розширених сповіщень при русі</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Пріоритетна технічна підтримка</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Технічний огляд системи (кожні 4 місяці)</li>
-                    </ul>
-                    <button class="btn w-full mt-auto bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                     <p class="text-xs text-text-secondary/70 mt-3 text-center">* Карта пам'яті 128 Гб входить в пакет.</p>
-                </div>
-
-                <div class="tier-card rounded-lg p-6 shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-center">Комфортний</h3>
-                     <div class="text-center mb-5">
-                        <span class="price" data-tier="premium">-</span> <span class="price-unit">грн/міс</span>
-                         <p class="camera-count-note" data-tier-note="premium"></p>
-                    </div>
-                     <ul class="text-sm text-text-secondary space-y-2 mb-6 flex-grow">
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Преміум IP-камера 5Мп+, AI-функції</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Монтаж камер (внутрішніх/зовнішніх) та налаштування додатку</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування запису на карту пам'яті при русі*</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Налаштування інтелектуальних сповіщень (людина/авто)</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>VIP технічна підтримка</li>
-                        <li><i class="fa-solid fa-check text-accent-blue mr-2"></i>Технічний огляд системи (кожні 3 місяці)</li>
-                     </ul>
-                    <button class="btn w-full mt-auto bg-input-bg hover:bg-input-bg-hover text-text-secondary border border-border-color font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300 text-sm">Замовити</button>
-                     <p class="text-xs text-text-secondary/70 mt-3 text-center">* Карта пам'яті 256 Гб входить в пакет.</p>
-                </div>
-            </div>
-        </section>
-
         <section id="custom-installation" class="mt-16 pt-10 border-t border-border-color text-center">
             <h2 class="text-2xl font-semibold text-center mb-4 flex items-center justify-center gap-2">
-                 <i class="fa-solid fa-screwdriver-wrench text-accent-pink"></i> Індивідуальні Рішення та Монтажні Роботи
+                 <i class="fa-solid fa-screwdriver-wrench text-accent-pink"></i> Прайс на Окремі Монтажні Роботи
             </h2>
             <p class="text-text-secondary mb-8 max-w-2xl mx-auto">
-                Потрібна специфічна конфігурація або окремі монтажні роботи? Ознайомтесь з орієнтовними цінами на послуги або зв'яжіться з нами для точного розрахунку.
+                Якщо вам потрібні лише певні роботи з монтажу або налаштування.
             </p>
 
             <div class="max-w-3xl mx-auto overflow-x-auto relative shadow-md rounded-lg mb-8">
@@ -371,8 +514,7 @@
                                 Прокладання кабелю (за метр)
                             </td>
                             <td class="px-6 py-4 text-right font-medium text-text-light">
-                                15 грн / метр
-                            </td>
+                                25 грн / метр </td>
                         </tr>
                          <tr class="hover:bg-input-bg/50 transition-colors">
                             <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
@@ -419,12 +561,11 @@
                                 Налаштування доступу до відеореєстратора з телефону або ПК
                             </td>
                             <td class="px-6 py-4 text-right font-medium text-text-light">
-                                200 грн / шт.
-                            </td>
+                                800 грн / шт. </td>
                         </tr>
                          <tr class="hover:bg-input-bg/50 transition-colors">
                             <td class="px-6 py-4 font-medium text-text-light whitespace-nowrap">
-                                Виїзд спеціаліста для ТО
+                                Виїзд спеціаліста для ТО / Консультації / Первинного огляду
                             </td>
                             <td class="px-6 py-4 text-right font-medium text-text-light">
                                 300 грн
@@ -433,7 +574,7 @@
                     </tbody>
                 </table>
             </div>
-            <a href="tel:0800303660" class="btn bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300">Зв'язатися з нами</a>
+            <a href="tel:0800303660" class="btn bg-accent-blue hover:bg-blue-500 text-text-light font-bold py-2 px-6 rounded-md uppercase transition-colors duration-300">Зв'язатися з нами для консультації</a>
          </section>
          </main>
 
@@ -443,14 +584,12 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- DOM Elements ---
-        const cameraInput = document.getElementById('camera-count-input');
-        const calculateBtn = document.getElementById('calculate-prices-btn');
+        // --- DOM Elements (Monthly Calculator) ---
+        const cameraInputMonthly = document.getElementById('camera-count-input');
+        const calculateBtnMonthly = document.getElementById('calculate-prices-btn');
         const pricingSection = document.getElementById('pricing-tiers');
         const displayedCountSpan = document.getElementById('displayed-camera-count');
-        const inputErrorMsg = document.getElementById('input-error-message');
-
-        // Price spans and notes
+        const inputErrorMsgMonthly = document.getElementById('input-error-message');
         const priceSpans = {
             economy: pricingSection.querySelector('.price[data-tier="economy"]'),
             standard: pricingSection.querySelector('.price[data-tier="standard"]'),
@@ -462,97 +601,230 @@
             premium: pricingSection.querySelector('.camera-count-note[data-tier-note="premium"]')
         };
 
+        // --- DOM Elements (Upfront Calculator) ---
+        const upfrontForm = document.getElementById('upfront-calc-form');
+        const calcCameraType = upfrontForm.querySelectorAll('input[name="calc_camera_type"]');
+        const calcCameraCount = document.getElementById('calc_camera_count');
+        const calcCableLength = document.getElementById('calc_cable_length');
+        const calcRecordingMethod = upfrontForm.querySelectorAll('input[name="calc_recording"]');
+        const calcOptionalServices = upfrontForm.querySelectorAll('input[name="calc_optional_services[]"]');
+        const calcNvrSetupCheckbox = document.getElementById('calc_nvr_setup_cb');
+        const calculateBtnUpfront = document.getElementById('calculate-upfront-btn');
+        const upfrontResultDiv = document.getElementById('upfront-calculator-result');
+        const upfrontTotalCostSpan = document.getElementById('upfront-total-cost');
+        const upfrontErrorMsg = document.getElementById('upfront-error-message');
 
-        // --- Constants ---
-        const BASE_PRICE = 199;
-        const TIER_NOMINALS = {
+
+        // --- Constants (Monthly) ---
+        const BASE_PRICE_MONTHLY = 199;
+        const TIER_NOMINALS_MONTHLY = {
             economy: 150,
             standard: 250,
             premium: 350
         };
 
-        // --- Functions ---
+         // --- Constants (Upfront) ---
+         const CAMERA_PRICES = {
+            economy: 1699,
+            standard: 2599,
+            premium: 3699
+         };
+         const CABLE_PRICE_PER_METER = 25; // Updated price: 20 -> 25
+         const RECORDING_COSTS = {
+            sd: 700,
+            nvr: 7000
+         };
+         const INSTALLATION_COST_PER_CAMERA = 799; // Default assumption (outdoor price)
+         const OPTIONAL_SERVICE_COSTS = {
+            remote_cam_setup: 150,
+            remote_nvr_setup: 800  // Updated price: 200 -> 800
+         };
+         const SPECIALIST_VISIT_COST = 300; // Added fixed cost
 
-        /**
-         * Calculates the price based on the formula.
-         * @param {number} cameraCount - Number of cameras.
-         * @param {number} nominal - Tier nominal value.
-         * @returns {number} - Calculated monthly price.
-         */
-        function calculatePrice(cameraCount, nominal) {
-            return BASE_PRICE + (nominal * cameraCount);
+
+        // --- Functions (Monthly) ---
+        function calculatePriceMonthly(cameraCount, nominal) {
+            return BASE_PRICE_MONTHLY + (nominal * cameraCount);
+        }
+        function showInputErrorMonthly(message) {
+            cameraInputMonthly.classList.add('border-error');
+            inputErrorMsgMonthly.textContent = message;
+            inputErrorMsgMonthly.classList.remove('hidden');
+        }
+        function hideInputErrorMonthly() {
+            cameraInputMonthly.classList.remove('border-error');
+            inputErrorMsgMonthly.classList.add('hidden');
+            inputErrorMsgMonthly.textContent = '';
         }
 
-        /**
-         * Shows an error message for the input.
-         * @param {string} message - The error message.
-         */
-        function showInputError(message) {
-            cameraInput.classList.add('border-error');
-            inputErrorMsg.textContent = message;
-            inputErrorMsg.classList.remove('hidden');
+        // --- Functions (Upfront) ---
+        function showInputErrorUpfront(element, message) {
+            // Find the closest parent form group or the element itself to apply border
+            const errorTarget = element.closest('.form-group') || element.closest('div > div') || element; // Try to find a reasonable container
+             if (errorTarget && !errorTarget.classList.contains('border-error')) {
+                 errorTarget.classList.add('border-error');
+             } else if (!element.classList.contains('border-error')) { // Fallback to element itself
+                  element.classList.add('border-error');
+             }
+
+            upfrontErrorMsg.textContent = message;
+            upfrontErrorMsg.classList.remove('hidden');
+            upfrontErrorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus the original problematic element if possible
+            if (element.focus) {
+                 setTimeout(() => element.focus(), 50); // Delay focus slightly
+            }
+        }
+        function hideInputErrorUpfront() {
+            upfrontForm.querySelectorAll('.border-error').forEach(el => el.classList.remove('border-error'));
+            upfrontErrorMsg.classList.add('hidden');
+            upfrontErrorMsg.textContent = '';
         }
 
-        /**
-         * Hides the input error message.
-         */
-        function hideInputError() {
-            cameraInput.classList.remove('border-error');
-            inputErrorMsg.classList.add('hidden');
-            inputErrorMsg.textContent = '';
-        }
+         // --- Event Listener (Monthly Calculator) ---
+        calculateBtnMonthly.addEventListener('click', () => {
+            hideInputErrorMonthly();
+            const cameraCount = parseInt(cameraInputMonthly.value, 10);
 
-        // --- Event Listener ---
-        calculateBtn.addEventListener('click', () => {
-            hideInputError(); // Clear previous errors
-            const cameraCount = parseInt(cameraInput.value, 10);
-
-            // Validate input
             if (isNaN(cameraCount) || cameraCount < 1) {
-                showInputError('Будь ласка, введіть дійсну кількість камер (мінімум 1).');
-                pricingSection.classList.add('hidden'); // Hide tiers if input is invalid
+                showInputErrorMonthly('Будь ласка, введіть дійсну кількість камер (мінімум 1).');
+                pricingSection.classList.add('hidden');
                 return;
             }
 
-            // Calculate prices
             const prices = {
-                economy: calculatePrice(cameraCount, TIER_NOMINALS.economy),
-                standard: calculatePrice(cameraCount, TIER_NOMINALS.standard),
-                premium: calculatePrice(cameraCount, TIER_NOMINALS.premium)
+                economy: calculatePriceMonthly(cameraCount, TIER_NOMINALS_MONTHLY.economy),
+                standard: calculatePriceMonthly(cameraCount, TIER_NOMINALS_MONTHLY.standard),
+                premium: calculatePriceMonthly(cameraCount, TIER_NOMINALS_MONTHLY.premium)
             };
 
-            // Update displayed prices and notes
             for (const tier in prices) {
                 if (priceSpans[tier]) {
                     priceSpans[tier].textContent = prices[tier];
                 }
                  if (noteSpans[tier]) {
-                    let cameraWord = 'камер'; // Default for 5+
+                    let cameraWord = 'камер';
                     if (cameraCount === 1) {
                         cameraWord = 'камеру';
                     } else if (cameraCount >= 2 && cameraCount <= 4) {
                         cameraWord = 'камери';
                     }
-                    // Always include installation and inspection info
                     noteSpans[tier].textContent = `* Ціна за ${cameraCount} ${cameraWord}, вкл. монтаж та тех. огляд`;
                 }
             }
 
-
-            // Update the title span
             if (displayedCountSpan) {
                  displayedCountSpan.textContent = cameraCount;
             }
-
-            // Show the pricing section
             pricingSection.classList.remove('hidden');
-
-            // Scroll to the results
             pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
+        cameraInputMonthly.addEventListener('input', hideInputErrorMonthly);
 
-        // Optional: Clear error when user types in the input
-        cameraInput.addEventListener('input', hideInputError);
+
+        // --- Event Listener (Upfront Calculator) ---
+        calculateBtnUpfront.addEventListener('click', () => {
+            hideInputErrorUpfront();
+            let isValid = true;
+            let totalCost = 0;
+
+            // 1. Get Camera Type and Price
+            const selectedCameraTypeInput = upfrontForm.querySelector('input[name="calc_camera_type"]:checked');
+            if (!selectedCameraTypeInput) {
+                // Target the div containing the radio buttons for error display
+                showInputErrorUpfront(upfrontForm.querySelector('input[name="calc_camera_type"]').closest('.radio-group').parentNode, 'Будь ласка, оберіть тип камери.');
+                return;
+            }
+            const cameraType = selectedCameraTypeInput.value;
+            const cameraPrice = CAMERA_PRICES[cameraType];
+
+            // 2. Get Number of Cameras
+            const numCameras = parseInt(calcCameraCount.value, 10);
+            if (isNaN(numCameras) || numCameras < 1) {
+                showInputErrorUpfront(calcCameraCount, 'Будь ласка, введіть дійсну кількість камер (мінімум 1).');
+                return;
+            }
+            totalCost += cameraPrice * numCameras;
+
+            // 3. Get Cable Length
+            const cableLength = parseInt(calcCableLength.value, 10);
+             if (isNaN(cableLength) || cableLength < 0) {
+                showInputErrorUpfront(calcCableLength, 'Будь ласка, введіть дійсний метраж кабелю (0 або більше).');
+                return;
+            }
+            totalCost += cableLength * CABLE_PRICE_PER_METER;
+
+            // 4. Get Recording Method Cost
+            const selectedRecordingInput = upfrontForm.querySelector('input[name="calc_recording"]:checked');
+             if (!selectedRecordingInput) {
+                 showInputErrorUpfront(upfrontForm.querySelector('input[name="calc_recording"]').closest('.radio-group').parentNode, 'Будь ласка, оберіть спосіб запису.');
+                return;
+            }
+            const recordingMethod = selectedRecordingInput.value;
+            totalCost += RECORDING_COSTS[recordingMethod];
+
+            // 5. Base Installation Cost
+            totalCost += INSTALLATION_COST_PER_CAMERA * numCameras;
+
+            // 6. Optional Services Cost
+            let remoteCamSetupCost = 0;
+            let remoteNvrSetupCost = 0;
+            calcOptionalServices.forEach(checkbox => {
+                if (checkbox.checked) {
+                    if (checkbox.value === 'remote_cam_setup') {
+                        remoteCamSetupCost = OPTIONAL_SERVICE_COSTS.remote_cam_setup * numCameras;
+                    } else if (checkbox.value === 'remote_nvr_setup' && recordingMethod === 'nvr') {
+                        remoteNvrSetupCost = OPTIONAL_SERVICE_COSTS.remote_nvr_setup;
+                    }
+                }
+            });
+            totalCost += remoteCamSetupCost;
+            totalCost += remoteNvrSetupCost;
+
+            // 7. Add Specialist Visit Cost
+            totalCost += SPECIALIST_VISIT_COST;
+
+
+            // Display Result
+            upfrontTotalCostSpan.textContent = totalCost;
+            upfrontResultDiv.classList.remove('hidden');
+            upfrontResultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        });
+
+        // Enable/Disable NVR setup checkbox based on recording method selection
+         calcRecordingMethod.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'nvr' && this.checked) {
+                    calcNvrSetupCheckbox.disabled = false;
+                } else {
+                    calcNvrSetupCheckbox.disabled = true;
+                    calcNvrSetupCheckbox.checked = false; // Uncheck if disabled
+                }
+            });
+            // Initial check
+             if (radio.value === 'nvr' && radio.checked) {
+                calcNvrSetupCheckbox.disabled = false;
+             } else if (radio.value === 'sd' && radio.checked) { // Ensure disabled if SD is default checked
+                 calcNvrSetupCheckbox.disabled = true;
+                 calcNvrSetupCheckbox.checked = false;
+             }
+         });
+
+         // Clear errors on form input
+         upfrontForm.addEventListener('input', hideInputErrorUpfront);
+
+
+        // --- Initialize ---
+        // (Monthly calculator initialization is handled by its own listener)
+        // Initial check for NVR checkbox state on load
+        const initialRecordingMethod = upfrontForm.querySelector('input[name="calc_recording"]:checked');
+        if (initialRecordingMethod && initialRecordingMethod.value === 'nvr') {
+             calcNvrSetupCheckbox.disabled = false;
+        } else {
+             calcNvrSetupCheckbox.disabled = true;
+             calcNvrSetupCheckbox.checked = false;
+        }
 
     });
 </script>
