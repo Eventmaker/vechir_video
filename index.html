@@ -24,6 +24,7 @@
                         'tier-standard-border': '#0ea5e9', // Sky 500 for standard highlight
                         'error-text': '#ffcad4',
                         'error-border': '#ff4d6d',
+                        'table-highlight-bg': 'rgba(14, 165, 233, 0.05)', // Subtle background for standard column
                     },
                     fontFamily: {
                         sans: ['Inter', 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
@@ -121,11 +122,16 @@
         }
 
         /* Table styling */
-        .price-table th {
+        .comparison-table th, .price-table th {
             background-color: theme('colors.input-bg');
         }
+        .comparison-table tr:hover td:not(.standard-col-highlight), /* Don't change highlight bg on hover */
         .price-table tr:hover {
              background-color: theme('colors.input-bg-hover');
+        }
+        /* Highlight for standard column in comparison table */
+        .standard-col-highlight {
+             background-color: theme('colors.table-highlight-bg');
         }
 
 
@@ -152,9 +158,77 @@
             <i class="fa-solid fa-calculator"></i> Розрахунок щомісячної вартості Відеонагляду
         </h1>
         <p class="text-center text-text-secondary mb-10 max-w-2xl mx-auto">
-            Вкажіть бажану кількість камер, щоб побачити індивідуально розраховані тарифи для вашого дому чи бізнесу.
+            Спочатку порівняйте основні переваги наших тарифів, а потім вкажіть бажану кількість камер для розрахунку індивідуальної вартості.
         </p>
 
+        <section id="tier-comparison-table" class="mb-12">
+            <h2 class="text-2xl font-semibold text-center mb-6">Порівняння Тарифів</h2>
+            <div class="max-w-4xl mx-auto overflow-x-auto relative shadow-md rounded-lg border border-border-color">
+                <table class="w-full text-sm text-left text-text-secondary comparison-table">
+                    <thead class="text-xs text-text-light uppercase">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 min-w-[200px]">
+                                Характеристика
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center">
+                                Доступний
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center standard-col-highlight">
+                                Оптимальний <span class="block text-[10px] normal-case opacity-75">(Популярний)</span>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center">
+                                Комфортний
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-card-bg divide-y divide-border-color">
+                        <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light">Тип камери</td>
+                            <td class="px-6 py-4 text-center">Базова 2Мп</td>
+                            <td class="px-6 py-4 text-center standard-col-highlight">Покращена 3-4Мп (FHD, IR)</td>
+                            <td class="px-6 py-4 text-center">Преміум 5Мп+ (AI)</td>
+                        </tr>
+                        <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light">Монтаж та налаштування</td>
+                            <td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-accent-blue"></i></td>
+                            <td class="px-6 py-4 text-center standard-col-highlight"><i class="fa-solid fa-check text-accent-blue"></i></td>
+                            <td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-accent-blue"></i></td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light">Налаштування запису на карту*</td>
+                            <td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-accent-blue"></i></td>
+                            <td class="px-6 py-4 text-center standard-col-highlight"><i class="fa-solid fa-check text-accent-blue"></i></td>
+                            <td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-accent-blue"></i></td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light">Налаштування сповіщень</td>
+                            <td class="px-6 py-4 text-center">Базові (рух)</td>
+                            <td class="px-6 py-4 text-center standard-col-highlight">Розширені (рух)</td>
+                            <td class="px-6 py-4 text-center">Інтелектуальні (AI)</td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light">Технічна підтримка</td>
+                            <td class="px-6 py-4 text-center">Базова</td>
+                            <td class="px-6 py-4 text-center standard-col-highlight">Пріоритетна</td>
+                            <td class="px-6 py-4 text-center">VIP</td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light">Технічний огляд</td>
+                            <td class="px-6 py-4 text-center">Кожні 6 міс.</td>
+                            <td class="px-6 py-4 text-center standard-col-highlight">Кожні 4 міс.</td>
+                            <td class="px-6 py-4 text-center">Кожні 3 міс.</td>
+                        </tr>
+                         <tr class="hover:bg-input-bg/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-text-light">Карта пам'яті в пакеті*</td>
+                            <td class="px-6 py-4 text-center">128 Гб</td>
+                            <td class="px-6 py-4 text-center standard-col-highlight">128 Гб</td>
+                            <td class="px-6 py-4 text-center">256 Гб</td>
+                        </tr>
+                    </tbody>
+                </table>
+                 <p class="text-xs text-text-secondary/70 mt-3 text-center">* Запис та карта пам'яті надаються за умови наявності відповідного слоту в камері.</p>
+            </div>
+        </section>
         <section id="camera-input-section" class="mb-10 max-w-md mx-auto bg-card-bg p-6 rounded-lg shadow-lg border border-border-color">
             <div class="form-group">
                 <label for="camera-count-input" class="block mb-2 text-lg font-medium text-text-light text-center">
@@ -174,7 +248,7 @@
 
         <section id="pricing-tiers" class="hidden mt-12">
              <h2 class="text-2xl font-semibold text-center mb-8 border-b border-border-color pb-3">
-                Доступні тарифи для <span id="displayed-camera-count"></span> камер(и)
+                Розраховані тарифи для <span id="displayed-camera-count"></span> камер(и)
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="tier-card rounded-lg p-6 shadow-lg">
@@ -440,7 +514,6 @@
                     priceSpans[tier].textContent = prices[tier];
                 }
                  if (noteSpans[tier]) {
-                    // === MODIFIED Note Logic (Always include install/inspection) ===
                     let cameraWord = 'камер'; // Default for 5+
                     if (cameraCount === 1) {
                         cameraWord = 'камеру';
@@ -449,7 +522,6 @@
                     }
                     // Always include installation and inspection info
                     noteSpans[tier].textContent = `* Ціна за ${cameraCount} ${cameraWord}, вкл. монтаж та тех. огляд`;
-                    // === END MODIFIED Note Logic ===
                 }
             }
 
@@ -473,4 +545,4 @@
 </script>
 
 </body>
-</html>
+</ht
